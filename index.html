@@ -47,5 +47,29 @@
 
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
   </script>
+    <script>
+    // ===== 로그인 정보 보관 (사파리 자동 로그인용) =====
+    // 앱 화면에서 오는 요청만 처리하고, 이 페이지(주소)의 저장소에 로그인 정보를 보관합니다.
+    (function () {
+      var KEY = 'fc_user_shell';
+      window.addEventListener('message', function (e) {
+        // 구글 앱 화면(googleusercontent.com)에서 온 메시지만 허용
+        if (!/^https:\/\/[a-z0-9-]+\.googleusercontent\.com$/.test(e.origin)) return;
+        var d = e.data || {};
+        try {
+          if (d.fcType === 'get') {
+            var v = null;
+            try { v = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (x) {}
+            e.source.postMessage({ fcType: 'user', user: v }, e.origin);
+          } else if (d.fcType === 'save' && d.user && d.user.token) {
+            localStorage.setItem(KEY, JSON.stringify(d.user));
+          } else if (d.fcType === 'clear') {
+            localStorage.removeItem(KEY);
+          }
+        } catch (x) {}
+      });
+    })();
+  </script>
+
 </body>
 </html>
