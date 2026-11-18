@@ -52,8 +52,8 @@
     box.innerHTML =
       '<div style="background:#fff;border-radius:18px;padding:22px;max-width:320px;width:100%;text-align:center;color:#111">' +
       '<div style="font-size:34px">🔔</div>' +
-      '<div style="font-weight:800;margin:8px 0 4px">포메이션 의견 알림</div>' +
-      '<div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:16px">우리 팀 포메이션에 새 의견이 달리면<br>폰으로 알려드려요.</div>' +
+      '<div style="font-weight:800;margin:8px 0 4px">FC 더퍼스트 알림</div>' +
+      '<div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:16px">공지·경기 일정·경기 결과·팀 의견이<br>생기면 폰으로 알려드려요.</div>' +
       '<button id="fc-push-go" style="width:100%;padding:12px;border:0;border-radius:12px;background:#dc2626;color:#fff;font-weight:800;font-size:15px">알림 허용하기</button>' +
       '<button id="fc-push-no" style="width:100%;padding:10px;border:0;background:none;color:#888;font-size:13px;margin-top:6px">나중에</button>' +
       '</div>';
