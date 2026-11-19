@@ -94,7 +94,6 @@
 (function () {
   var appWin = null;
   var ORIGIN_OK = /^https:\/\/([a-z0-9-]+\.)*(googleusercontent\.com|google\.com)$/;
-  try { history.replaceState({ fcb: 0 }, ''); history.pushState({ fcb: 1 }, ''); } catch (e) { return; }
 
   window.addEventListener('message', function (e) {
     if (!ORIGIN_OK.test(e.origin)) return;
@@ -104,7 +103,20 @@
   });
 
   var pending = null;
+  var inited = false;
+  // 앱 화면(iframe)이 다 불러와진 뒤에 기록 칸을 쌓아야, iframe이 만드는 이동 기록에 밀리지 않음
+  function init() {
+    if (inited) return;
+    inited = true;
+    try { history.replaceState({ fcb: 0 }, ''); history.pushState({ fcb: 1 }, ''); } catch (e) {}
+  }
+  var fr = document.getElementById('app');
+  if (fr) fr.addEventListener('load', function () { setTimeout(init, 1500); });
+  window.addEventListener('load', function () { setTimeout(init, 6000); });   // 안전장치
+  if (document.readyState === 'complete') setTimeout(init, 1500);
+
   window.addEventListener('popstate', function () {
+    if (!inited) return;
     if (history.state && history.state.fcb === 1) return;   // 앞으로 가기는 무시
     var done = false;
     function finish(handled) {
