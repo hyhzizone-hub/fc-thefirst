@@ -1,4 +1,4 @@
-﻿// 껍데기 페이지의 푸시 알림 담당: 앱 화면(iframe)과 postMessage로 대화합니다.
+// 껍데기 페이지의 푸시 알림 담당: 앱 화면(iframe)과 postMessage로 대화합니다.
 (function () {
   var C = self.FC_PUSH || {};
   var okCfg = !!(C.firebase && C.firebase.projectId && C.firebase.projectId !== '여기에' && C.vapidKey && C.vapidKey !== '여기에');
@@ -87,5 +87,34 @@
       if (!supported()) return reply({ fcType: 'push-status', supported: false });
       sdk().then(function (m) { return m.deleteToken(); }).catch(function () {}).then(function () { reply({ fcType: 'push-status', supported: true, permission: Notification.permission, token: null, standalone: true }); });
     }
+  });
+})();
+
+// ===== 뒤로 가기: 앱 안에서 한 단계 이전 화면으로, 첫 화면에서만 종료 =====
+(function () {
+  var appWin = null;
+  var ORIGIN_OK = /^https:\/\/([a-z0-9-]+\.)*(googleusercontent\.com|google\.com)$/;
+  try { history.replaceState({ fcb: 0 }, ''); history.pushState({ fcb: 1 }, ''); } catch (e) { return; }
+
+  window.addEventListener('message', function (e) {
+    if (!ORIGIN_OK.test(e.origin)) return;
+    var d = e.data || {};
+    if (d.fcType === 'back-hello') appWin = e.source;
+    else if (d.fcType === 'back-result' && pending) pending(!!d.handled);
+  });
+
+  var pending = null;
+  window.addEventListener('popstate', function () {
+    if (history.state && history.state.fcb === 1) return;   // 앞으로 가기는 무시
+    var done = false;
+    function finish(handled) {
+      if (done) return;
+      done = true; pending = null; clearTimeout(timer);
+      if (handled) { try { history.pushState({ fcb: 1 }, ''); } catch (e) {} }
+      else { history.back(); }                                // 첫 화면: 실제로 종료
+    }
+    var timer = setTimeout(function () { finish(false); }, 500);
+    pending = finish;
+    try { appWin.postMessage({ fcType: 'back' }, '*'); } catch (e) { finish(false); }
   });
 })();
